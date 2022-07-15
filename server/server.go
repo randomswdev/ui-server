@@ -147,8 +147,14 @@ func (s *Server) Start() error {
 	}
 
 	address := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
-	if err := s.httpServer.Start(address); err != http.ErrServerClosed {
-		s.httpServer.Logger.Fatal(err)
+	if cfg.TLS.CertFile != "" && cfg.TLS.KeyFile != "" {
+		if err := s.httpServer.StartTLS(address, cfg.TLS.CertFile, cfg.TLS.KeyFile); err != http.ErrServerClosed {
+			s.httpServer.Logger.Fatal(err)
+		}
+	} else {
+		if err := s.httpServer.Start(address); err != http.ErrServerClosed {
+			s.httpServer.Logger.Fatal(err)
+		}
 	}
 	return nil
 }
